@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Karadeniz Konutu — Üretici Biçim Grameri</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap');
+:root {
+  --forest:#1a2e1f; --moss:#2d4a32; --sage:#4a7c59; --mist:#8fb49a;
+  --fog:#c8d9cc; --parch:#f0ece4; --timber:#8b5e3c; --stone:#9a9088;
+  --cream:#faf7f2; --ink:#111a13; --rain:#6b8f71; --sky:#b8cfe8;
+  --mono:'Space Mono',monospace; --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--ink);color:var(--parch);display:flex;flex-direction:column}
+
+/* TOP BAR */
+header{
+  background:var(--forest);border-bottom:1px solid var(--moss);
+  padding:.6rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-shrink:0;
+}
+.logo{font-family:var(--mono);font-size:12px;color:var(--mist);letter-spacing:.08em}
+.logo span{color:var(--parch)}
+.header-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.badge{font-family:var(--mono);font-size:10px;padding:3px 8px;border:1px solid var(--moss);color:var(--mist);border-radius:2px}
+
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:280px 1fr 340px;flex:1;overflow:hidden;min-height:0}
+
+/* LEFT PANEL */
+.left{background:var(--forest);border-right:1px solid var(--moss);overflow-y:auto;padding:1.25rem}
+.panel-title{font-family:var(--mono);font-size:10px;color:var(--sage);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--moss)}
+.param-group{margin-bottom:1.25rem}
+.param-label{font-size:11px;color:var(--mist);display:flex;justify-content:space-between;margin-bottom:5px}
+.param-label span{font-family:var(--mono);color:var(--parch);font-size:11px}
+input[type=range]{width:100%;accent-color:var(--sage);cursor:pointer;height:3px}
+.radio-group{display:flex;flex-direction:column;gap:4px;margin-top:4px}
+.radio-opt{display:flex;align-items:center;gap:7px;cursor:pointer;padding:5px 8px;border-radius:2px;border:1px solid transparent;transition:border-color .15s}
+.radio-opt:hover{border-color:var(--moss)}
+.radio-opt.active{border-color:var(--sage);background:rgba(74,124,89,.15)}
+.radio-opt input{accent-color:var(--sage)}
+.radio-opt span{font-size:12px;color:var(--fog)}
+.divider{height:1px;background:var(--moss);margin:1rem 0}
+.grammar-tags{display:flex;flex-direction:column;gap:5px}
+.gtag{font-family:var(--mono);font-size:10px;padding:4px 8px;background:rgba(74,124,89,.2);color:var(--mist);border-left:2px solid var(--sage)}
+.gen-btn{
+  width:100%;margin-top:1rem;
+  font-family:var(--mono);font-size:12px;
+  padding:10px;background:var(--sage);color:var(--parch);
+  border:none;cursor:pointer;letter-spacing:.06em;text-transform:uppercase;
+  transition:background .15s;
+}
+.gen-btn:hover{background:var(--moss)}
+.gen-btn:disabled{background:var(--moss);opacity:.5;cursor:not-allowed}
+
+/* CENTER */
+.center{display:flex;flex-direction:column;overflow:hidden;background:#0d1a0f}
+.canvas-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--moss);display:flex;align-items:center;gap:.75rem;flex-shrink:0;background:var(--forest)}
+.canvas-tabs{display:flex;gap:0}
+.ctab{font-family:var(--mono);font-size:11px;padding:5px 14px;background:none;border:none;color:var(--stone);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.05em}
+.ctab.active{color:var(--parch);border-bottom-color:var(--sage)}
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;overflow:hidden;position:relative}
+#svgWrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+#svgWrap svg{max-width:100%;max-height:100%}
+.canvas-area.hidden{display:none}
+.plan-area{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;overflow:hidden}
+.plan-area.hidden{display:none}
+.bottom-bar{background:var(--forest);border-top:1px solid var(--moss);padding:.5rem 1.25rem;font-family:var(--mono);font-size:10px;color:var(--stone);flex-shrink:0}
+
+/* RIGHT PANEL */
+.right{background:#0f1f12;border-left:1px solid var(--moss);display:flex;flex-direction:column;overflow:hidden}
+.right-header{padding:.75rem 1.25rem;border-bottom:1px solid var(--moss);flex-shrink:0;background:var(--forest);display:flex;align-items:center;justify-content:space-between}
+.right-title{font-family:var(--mono);font-size:11px;color:var(--sage);letter-spacing:.1em;text-transform:uppercase}
+.ai-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--stone)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--stone)}
+.dot.thinking{background:#f5c842;animation:blink .8s ease-in-out infinite}
+.dot.done{background:var(--sage)}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+.right-body{flex:1;overflow-y:auto;padding:1.25rem}
+.ai-block{margin-bottom:1.25rem}
+.ai-block-title{font-family:var(--mono);font-size:10px;color:var(--sage);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;padding-bottom:.4rem;border-bottom:1px solid var(--moss)}
+.ai-block-text{font-size:13px;color:var(--fog);line-height:1.7}
+.ai-rule{background:rgba(74,124,89,.12);border-left:2px solid var(--sage);padding:8px 10px;margin:6px 0;font-size:12px;color:var(--mist)}
+.ai-rule strong{color:var(--parch);font-family:var(--mono);font-size:11px}
+.placeholder-ai{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:1rem;color:var(--stone);text-align:center;padding:2rem}
+.placeholder-ai p{font-size:13px;line-height:1.6}
+.stream-cursor{display:inline-block;width:8px;height:13px;background:var(--sage);animation:blink .8s step-end infinite;vertical-align:text-bottom;margin-left:1px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--moss);border-radius:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ALG/<span>VRN</span> — Karadeniz Konutu</div>
+  <div class="badge">Üretici Biçim Grameri</div>
+  <div class="badge">Parametrik + AI</div>
+  <div class="header-right">
+    <div class="badge">ASCAAD 2026</div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- LEFT: PARAMETRELER -->
+  <div class="left">
+    <div class="panel-title">Biçim Grameri Parametreleri</div>
+
+    <div class="param-group">
+      <div class="param-label">Kat sayısı <span id="v-kat">2</span></div>
+      <input type="range" min="1" max="4" step="1" value="2" id="p-kat" oninput="update()">
+    </div>
+
+    <div class="param-group">
+      <div class="param-label">Çatı eğimi (°) <span id="v-cati">38</span></div>
+      <input type="range" min="20" max="60" step="1" value="38" id="p-cati" oninput="update()">
+    </div>
+
+    <div class="param-group">
+      <div class="param-label">Saçak derinliği <span id="v-sacak">0.6</span>m</div>
+      <input type="range" min="0.2" max="1.2" step="0.1" value="0.6" id="p-sacak" oninput="update()">
+    </div>
+
+    <div class="param-group">
+      <div class="param-label">Çıkma oranı <span id="v-cikma">0.3</span></div>
+      <input type="range" min="0" max="0.6" step="0.05" value="0.3" id="p-cikma" oninput="update()">
+    </div>
+
+    <div class="param-group">
+      <div class="param-label">Pencere ritmi <span id="v-pencere">3</span></div>
+      <input type="range" min="1" max="6" step="1" value="3" id="p-pencere" oninput="update()">
+    </div>
+
+    <div class="param-group">
+      <div class="param-label">Eğim açısı <span id="v-egim">15</span>°</div>
+      <input type="range" min="0" max="35" step="5" value="15" id="p-egim" oninput="update()">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="panel-title">Malzeme Kuralı</div>
+    <div class="radio-group" id="malzemeGroup">
+      <label class="radio-opt active"><input type="radio" name="malzeme" value="ahsap" checked onchange="update()"><span>🪵 Ahşap iskelet / Bağdadi</span></label>
+      <label class="radio-opt"><input type="radio" name="malzeme" value="tas" onchange="update()"><span>🪨 Yığma taş (alt kat)</span></label>
+      <label class="radio-opt"><input type="radio" name="malzeme" value="karma" onchange="update()"><span>⚗️ Karma (taş + ahşap)</span></label>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="panel-title">Sosyal Yaşam Kuralı</div>
+    <div class="radio-group" id="sofaGroup">
+      <label class="radio-opt active"><input type="radio" name="sofa" value="ortasofa" checked onchange="update()"><span>Orta sofa düzeni</span></label>
+      <label class="radio-opt"><input type="radio" name="sofa" value="yansofa" onchange="update()"><span>Yan sofa düzeni</span></label>
+      <label class="radio-opt"><input type="radio" name="sofa" value="dissofa" onchange="update()"><span>Dış sofa (hayat)</span></label>
+    </div>
+
+    <div class="divider"></div>
+    <div class="panel-title">Aktif Gramer Kuralları</div>
+    <div class="grammar-tags" id="gramTags"></div>
+
+    <button class="gen-btn" id="genBtn" onclick="generateAI()">
+      ▶ AI Analizi Üret
+    </button>
+  </div>
+
+  <!-- CENTER: GÖRSEL -->
+  <div class="center">
+    <div class="canvas-header">
+      <div class="canvas-tabs">
+        <button class="ctab active" onclick="switchView('cephe',this)">Cephe</button>
+        <button class="ctab" onclick="switchView('plan',this)">Plan</button>
+        <button class="ctab" onclick="switchView('aksonometri',this)">Aksonometri</button>
+      </div>
+    </div>
+    <div class="canvas-area" id="viewCephe"><div id="svgWrap"></div></div>
+    <div class="canvas-area hidden" id="viewPlan"><div id="planWrap"></div></div>
+    <div class="canvas-area hidden" id="viewAkso"><div id="aksoWrap"></div></div>
+    <div class="bottom-bar" id="statusBar">Hazır — parametreleri değiştir, yapı anında güncellenir</div>
+  </div>
+
+  <!-- RIGHT: AI -->
+  <div class="right">
+    <div class="right-header">
+      <div class="right-title">Biçim Grameri Analizi</div>
+      <div class="ai-status"><div class="dot" id="aiDot"></div><span id="aiStatusTxt">Bekliyor</span></div>
+    </div>
+    <div class="right-body" id="rightBody">
+      <div class="placeholder-ai">
+        <div style="font-size:28px">⌂</div>
+        <p>Parametreleri ayarlayın ve <strong style="color:var(--parch)">AI Analizi Üret</strong> butonuna basın.</p>
+        <p style="font-size:12px;margin-top:.5rem">Claude API, seçtiğiniz biçim grameri kurallarını Trabzon Kültür Varlıkları Envanteri ve Karadeniz geleneksel mimarlık bilgisi ışığında analiz edecek.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ─── YARDIMCI ─── */
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value);
+const sel = name => document.querySelector(`input[name="${name}"]:checked`)?.value;
+
+function switchView(v, btn) {
+  ['Cephe','Plan','Akso'].forEach(x => $('view'+x).classList.add('hidden'));
+  $('view'+v.charAt(0).toUpperCase()+v.slice(1)).classList.remove('hidden');
+  document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ─── PARAMETRELER ─── */
+function getP() {
+  return {
+    kat: num('p-kat'),
+    cati: num('p-cati'),
+    sacak: num('p-sacak'),
+    cikma: num('p-cikma'),
+    pencere: num('p-pencere'),
+    egim: num('p-egim'),
+    malzeme: sel('malzeme'),
+    sofa: sel('sofa'),
+  };
+}
+
+function update() {
+  const p = getP();
+  $('v-kat').textContent = p.kat;
+  $('v-cati').textContent = p.cati;
+  $('v-sacak').textContent = p.sacak.toFixed(1);
+  $('v-cikma').textContent = p.cikma.toFixed(2);
+  $('v-pencere').textContent = p.pencere;
+  $('v-egim').textContent = p.egim;
+
+  // radio active styles
+  document.querySelectorAll('.radio-opt').forEach(el => {
+    el.classList.toggle('active', el.querySelector('input')?.checked);
+  });
+
+  drawCephe(p);
+  drawPlan(p);
+  drawAkso(p);
+  updateGramTags(p);
+  updateStatus(p);
+}
+
+function updateStatus(p) {
+  const rules = [];
+  if (p.cati > 40) rules.push('Yüksek eğimli çatı kuralı aktif');
+  if (p.sacak > 0.7) rules.push('Derin saçak koruması aktif');
+  if (p.cikma > 0.2) rules.push('Çıkma (cumba) kuralı aktif');
+  if (p.egim > 10) rules.push('Eğimli arazi adaptasyonu aktif');
+  $('statusBar').textContent = rules.length ? rules.join(' · ') : 'Temel biçim grameri';
+}
+
+function updateGramTags(p) {
+  const tags = [];
+  tags.push(`Yerleşme: ${p.egim}° eğim — ${p.egim > 15 ? 'kademeli oturma' : 'düz zemin'}`);
+  tags.push(`Çatı: ${p.cati}° eğim — ${p.cati > 40 ? 'yüksek yağış kuralı' : 'orta eğim'}`);
+  if (p.sacak > 0.5) tags.push(`Saçak: ${p.sacak.toFixed(1)}m derinlik — cephe koruması`);
+  if (p.cikma > 0.15) tags.push(`Çıkma: %${Math.round(p.cikma*100)} — alan genişletme`);
+  tags.push(`Pencere: ${p.pencere} açıklık — ritim kuralı`);
+  tags.push(`Malzeme: ${p.malzeme === 'karma' ? 'taş zemin + ahşap üst' : p.malzeme}`);
+  $('gramTags').innerHTML = tags.map(t => `<div class="ai-rule">${t}</div>`).join('');
+}
+
+/* ─── CEPHE ÇİZİMİ ─── */
+function drawCephe(p) {
+  const W = 600, H = 480;
+  const bW = 340, floorH = 65;
+  const totalKatH = p.kat * floorH;
+  const groundY = H - 80;
+  const cikmaW = bW * p.cikma;
+  const baseX = (W - bW) / 2;
+
+  // Eğim: yapıyı sağa-sola kaydır
+  const egimOff = p.egim * 1.2;
+
+  // Zemin kademeleri
+  const zemin0 = groundY;
+  const katBaslangic = zemin0 - totalKatH;
+
+  // Malzeme renkleri
+  const mc = {
+    ahsap: { wall: '#c8a882', trim: '#8b5e3c', win: '#d4e8f0' },
+    tas:   { wall: '#b4a898', trim: '#6b5c50', win: '#d4e8f0' },
+    karma: { wall: '#c8a882', trim: '#8b5e3c', win: '#d4e8f0' },
+  }[p.malzeme];
+
+  // Saçak uzantısı (piksel)
+  const sacakPx = p.sacak * 55;
+  const catiEgimRad = (p.cati * Math.PI) / 180;
+  const catiH = ((bW + cikmaW + sacakPx * 2) / 2) * Math.tan(catiEgimRad);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">`;
+  s += `<defs>
+    <pattern id="woodGrain" width="8" height="40" patternUnits="userSpaceOnUse">
+      <rect width="8" height="40" fill="${mc.wall}"/>
+      <line x1="0" y1="0" x2="0" y2="40" stroke="${mc.trim}" stroke-width=".3" opacity=".4"/>
+    </pattern>
+    <pattern id="stoneP" width="20" height="14" patternUnits="userSpaceOnUse">
+      <rect width="20" height="14" fill="#9a9088"/>
+      <rect x="0" y="0" width="10" height="7" fill="none" stroke="#7a6f68" stroke-width=".5"/>
+      <rect x="10" y="7" width="10" height="7" fill="none" stroke="#7a6f68" stroke-width=".5"/>
+    </pattern>
+  </defs>`;
+
+  // Gökyüzü + dağ
+  s += `<rect width="${W}" height="${H}" fill="#0d1a0f"/>`;
+  // Dağ silüeti
+  s += `<polygon points="0,${groundY+20} 120,${groundY-60} 220,${groundY+20}" fill="#1a2e1f"/>`;
+  s += `<polygon points="${W},${groundY+20} ${W-100},${groundY-80} ${W-200},${groundY+20}" fill="#1a2e1f"/>`;
+  // Zemin
+  s += `<rect x="0" y="${groundY}" width="${W}" height="${H-groundY}" fill="#2d4a32"/>`;
+  // Zemin dokusu
+  for (let i = 0; i < W; i += 12) {
+    s += `<line x1="${i}" y1="${groundY}" x2="${i+6}" y2="${groundY+20}" stroke="#1a2e1f" stroke-width=".4" opacity=".5"/>`;
+  }
+
+  const bx = baseX + egimOff;
+
+  // Eğim kademeleri (temel/bodrum)
+  if (p.egim > 5) {
+    s += `<polygon points="${bx},${zemin0} ${bx+bW},${zemin0} ${bx+bW},${zemin0+p.egim*1.5} ${bx},${zemin0+p.egim*0.5}" fill="${p.malzeme==='ahsap'?'#6b5c50':'url(#stoneP)'}"/>`;
+  }
+
+  // Alt kat duvarı (taş veya karma ise taş)
+  const altKatH = p.malzeme === 'karma' ? floorH : (p.malzeme === 'tas' ? totalKatH : 0);
+  if (altKatH > 0) {
+    s += `<rect x="${bx}" y="${zemin0 - altKatH}" width="${bW}" height="${altKatH}" fill="url(#stoneP)"/>`;
+  }
+
+  // Ahşap katlar
+  const ahsapBaslangic = p.malzeme === 'karma' ? zemin0 - totalKatH : (p.malzeme === 'ahsap' ? zemin0 - totalKatH : null);
+  const ahsapH = p.malzeme === 'karma' ? (p.kat - 1) * floorH : (p.malzeme === 'ahsap' ? totalKatH : 0);
+
+  if (ahsapH > 0 && ahsapBaslangic) {
+    s += `<rect x="${bx}" y="${ahsapBaslangic}" width="${bW}" height="${ahsapH}" fill="url(#woodGrain)"/>`;
+  } else if (p.malzeme === 'tas') {
+    // already drawn
+  }
+
+  // Kat çizgileri
+  for (let k = 1; k < p.kat; k++) {
+    const ky = zemin0 - k * floorH;
+    s += `<line x1="${bx}" y1="${ky}" x2="${bx+bW}" y2="${ky}" stroke="${mc.trim}" stroke-width="2"/>`;
+  }
+
+  // Çıkma (sadece üst katlarda)
+  if (p.cikma > 0.05 && p.kat >= 2) {
+    const cikmaKatlar = Math.min(p.kat - 1, 2);
+    const cikmaY = zemin0 - p.kat * floorH;
+    const cikmaH = cikmaKatlar * floorH;
+    // Sol çıkma
+    s += `<rect x="${bx - cikmaW/2}" y="${cikmaY}" width="${cikmaW/2 + 4}" height="${cikmaH}" fill="url(#woodGrain)"/>`;
+    s += `<line x1="${bx}" y1="${cikmaY}" x2="${bx-cikmaW/2}" y2="${cikmaY}" stroke="${mc.trim}" stroke-width="1.5"/>`;
+    s += `<line x1="${bx-cikmaW/2}" y1="${cikmaY}" x2="${bx-cikmaW/2}" y2="${cikmaY+cikmaH}" stroke="${mc.trim}" stroke-width="1.5"/>`;
+    // Sağ çıkma
+    s += `<rect x="${bx+bW-4}" y="${cikmaY}" width="${cikmaW/2 + 4}" height="${cikmaH}" fill="url(#woodGrain)"/>`;
+    s += `<line x1="${bx+bW}" y1="${cikmaY}" x2="${bx+bW+cikmaW/2}" y2="${cikmaY}" stroke="${mc.trim}" stroke-width="1.5"/>`;
+    s += `<line x1="${bx+bW+cikmaW/2}" y1="${cikmaY}" x2="${bx+bW+cikmaW/2}" y2="${cikmaY+cikmaH}" stroke="${mc.trim}" stroke-width="1.5"/>`;
+  }
+
+  // Pencereler — her katta
+  const winW = 28, winH = 36;
+  const totalW = bW + cikmaW;
+  const startX = bx - cikmaW / 2;
+  const gap = totalW / (p.pencere + 1);
+  for (let k = 0; k < p.kat; k++) {
+    const ky = zemin0 - k * floorH - floorH / 2 - winH / 2;
+    for (let i = 1; i <= p.pencere; i++) {
+      const wx = startX + gap * i - winW / 2;
+      s += `<rect x="${wx}" y="${ky}" width="${winW}" height="${winH}" fill="${mc.win}" rx="1"/>`;
+      s += `<rect x="${wx}" y="${ky}" width="${winW}" height="${winH}" fill="none" stroke="${mc.trim}" stroke-width="1.2" rx="1"/>`;
+      s += `<line x1="${wx+winW/2}" y1="${ky}" x2="${wx+winW/2}" y2="${ky+winH}" stroke="${mc.trim}" stroke-width=".8"/>`;
+      s += `<line x1="${wx}" y1="${ky+winH/2}" x2="${wx+winW}" y2="${ky+winH/2}" stroke="${mc.trim}" stroke-width=".8"/>`;
+    }
+  }
+
+  // Kapı
+  const kapıW = 36, kapıH = 50;
+  const kapıX = bx + bW / 2 - kapıW / 2;
+  s += `<rect x="${kapıX}" y="${zemin0-kapıH}" width="${kapıW}" height="${kapıH}" fill="${mc.win}" rx="2"/>`;
+  s += `<rect x="${kapıX}" y="${zemin0-kapıH}" width="${kapıW}" height="${kapıH}" fill="none" stroke="${mc.trim}" stroke-width="1.5" rx="2"/>`;
+  s += `<path d="M${kapıX},${zemin0-kapıH} Q${kapıX+kapıW/2},${zemin0-kapıH-16} ${kapıX+kapıW},${zemin0-kapıH}" fill="none" stroke="${mc.trim}" stroke-width="1.2"/>`;
+
+  // Çerçeve bordür
+  s += `<rect x="${bx}" y="${katBaslangic}" width="${bW}" height="${totalKatH}" fill="none" stroke="${mc.trim}" stroke-width="1.5"/>`;
+
+  // ÇATI
+  const roofBaseY = katBaslangic;
+  const rL = bx - cikmaW / 2 - sacakPx;
+  const rR = bx + bW + cikmaW / 2 + sacakPx;
+  const rMid = (rL + rR) / 2;
+  const roofApex = roofBaseY - catiH;
+  s += `<polygon points="${rL},${roofBaseY} ${rMid},${roofApex} ${rR},${roofBaseY}" fill="#1a2e1f"/>`;
+  s += `<polygon points="${rL+4},${roofBaseY} ${rMid},${roofApex+4} ${rR-4},${roofBaseY}" fill="#2d4a32"/>`;
+  // çatı çizgileri
+  for (let i = 1; i < 5; i++) {
+    const t = i / 5;
+    const lx = rL + (rMid - rL) * t, ly = roofBaseY + (roofApex - roofBaseY) * t;
+    const rx2 = rR + (rMid - rR) * t;
+    s += `<line x1="${lx}" y1="${ly}" x2="${rx2}" y2="${ly}" stroke="#4a7c59" stroke-width=".5" opacity=".4"/>`;
+  }
+
+  // SAÇAK çizgisi
+  s += `<line x1="${rL}" y1="${roofBaseY}" x2="${rR}" y2="${roofBaseY}" stroke="${mc.trim}" stroke-width="2.5"/>`;
+
+  // Baca
+  const bacaX = rMid + 30;
+  const bacaY = roofApex + (roofBaseY - roofApex) * 0.35;
+  s += `<rect x="${bacaX-6}" y="${bacaY-20}" width="12" height="20" fill="#6b5c50"/>`;
+  s += `<rect x="${bacaX-8}" y="${bacaY-22}" width="16" height="4" fill="#9a9088"/>`;
+
+  // Duman
+  for (let i = 0; i < 3; i++) {
+    const sy = bacaY - 22 - i * 12;
+    const sx = bacaX + i * 3;
+    s += `<circle cx="${sx}" cy="${sy}" r="${3+i*1.5}" fill="rgba(200,200,200,.06)"/>`;
+  }
+
+  // Ölçü notları
+  s += `<line x1="${bx-20}" y1="${katBaslangic}" x2="${bx-20}" y2="${zemin0}" stroke="var(--sage)" stroke-width=".8" stroke-dasharray="3,3"/>`;
+  s += `<text x="${bx-28}" y="${(katBaslangic+zemin0)/2}" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="var(--sage)" transform="rotate(-90,${bx-28},${(katBaslangic+zemin0)/2})">${p.kat} KAT</text>`;
+  s += `<line x1="${bx}" y1="${zemin0+12}" x2="${bx+bW}" y2="${zemin0+12}" stroke="var(--sage)" stroke-width=".8" stroke-dasharray="3,3"/>`;
+  s += `<text x="${bx+bW/2}" y="${zemin0+24}" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="var(--sage)">CEPHE</text>`;
+
+  // Başlık
+  s += `<text x="12" y="18" font-family="Space Mono,monospace" font-size="9" fill="var(--mist)" letter-spacing=".08em">CEPHE GÖRÜNÜŞܾ</text>`;
+  s += `<text x="12" y="30" font-family="Space Mono,monospace" font-size="8" fill="var(--stone)">çatı ${p.cati}° / saçak ${p.sacak.toFixed(1)}m / ${p.kat} kat</text>`;
+
+  s += '</svg>';
+  $('svgWrap').innerHTML = s;
+}
+
+/* ─── PLAN ─── */
+function drawPlan(p) {
+  const W = 500, H = 440;
+  const bW = 260, bH = 200;
+  const bx = (W - bW) / 2, by = (H - bH) / 2;
+  const cikmaW = bW * p.cikma;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">`;
+  s += `<rect width="${W}" height="${H}" fill="#0d1a0f"/>`;
+
+  // Sofa
+  const sofaConfigs = {
+    ortasofa: { x: bx + bW*0.3, y: by + bH*0.25, w: bW*0.4, h: bH*0.5, label: 'SOFA' },
+    yansofa:  { x: bx + 8, y: by + 8, w: bW*0.25, h: bH - 16, label: 'SOFA' },
+    dissofa:  { x: bx - 30, y: by + bH*0.2, w: 30, h: bH*0.6, label: 'HAYAT' },
+  };
+  const sofaCfg = sofaConfigs[p.sofa];
+
+  // Dış duvar
+  s += `<rect x="${bx}" y="${by}" width="${bW}" height="${bH}" fill="#1a2e1f" stroke="var(--fog)" stroke-width="2"/>`;
+
+  // Çıkma plan
+  if (p.cikma > 0.05) {
+    s += `<rect x="${bx + bW}" y="${by + bH*0.25}" width="${cikmaW/2}" height="${bH*0.5}" fill="#1a2e1f" stroke="var(--fog)" stroke-width="1.5"/>`;
+    s += `<text x="${bx+bW+cikmaW/4}" y="${by+bH/2}" text-anchor="middle" font-family="Space Mono,monospace" font-size="8" fill="var(--sage)" transform="rotate(90,${bx+bW+cikmaW/4},${by+bH/2})">ÇIKMA</text>`;
+  }
+
+  // Sofa
+  s += `<rect x="${sofaCfg.x}" y="${sofaCfg.y}" width="${sofaCfg.w}" height="${sofaCfg.h}" fill="#2d4a32" stroke="var(--mist)" stroke-width=".8" stroke-dasharray="4,2"/>`;
+  s += `<text x="${sofaCfg.x+sofaCfg.w/2}" y="${sofaCfg.y+sofaCfg.h/2+4}" text-anchor="middle" font-family="Space Mono,monospace" font-size="9" fill="var(--mist)">${sofaCfg.label}</text>`;
+
+  // Odalar — sofa tipine göre
+  const rooms = p.sofa === 'ortasofa' ? [
+    {x:bx+6, y:by+6, w:bW*0.28, h:bH*0.45, n:'ODA 1'},
+    {x:bx+bW*0.72, y:by+6, w:bW*0.28-6, h:bH*0.45, n:'ODA 2'},
+    {x:bx+6, y:by+bH*0.55, w:bW*0.28, h:bH*0.45-6, n:'ODA 3'},
+    {x:bx+bW*0.72, y:by+bH*0.55, w:bW*0.28-6, h:bH*0.45-6, n:'ODA 4'},
+  ] : p.sofa === 'yansofa' ? [
+    {x:bx+bW*0.3, y:by+6, w:bW*0.35, h:bH*0.45, n:'ODA 1'},
+    {x:bx+bW*0.7, y:by+6, w:bW*0.3-6, h:bH*0.45, n:'ODA 2'},
+    {x:bx+bW*0.3, y:by+bH*0.55, w:bW*0.35, h:bH*0.45-6, n:'ODA 3'},
+    {x:bx+bW*0.7, y:by+bH*0.55, w:bW*0.3-6, h:bH*0.45-6, n:'ODA 4'},
+  ] : [
+    {x:bx+6, y:by+6, w:bW*0.42, h:bH*0.45, n:'ODA 1'},
+    {x:bx+bW*0.52, y:by+6, w:bW*0.48-6, h:bH*0.45, n:'ODA 2'},
+    {x:bx+6, y:by+bH*0.55, w:bW*0.42, h:bH*0.45-6, n:'ODA 3'},
+    {x:bx+bW*0.52, y:by+bH*0.55, w:bW*0.48-6, h:bH*0.45-6, n:'ODA 4'},
+  ];
+
+  rooms.forEach(r => {
+    s += `<rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="none" stroke="var(--fog)" stroke-width="1"/>`;
+    s += `<text x="${r.x+r.w/2}" y="${r.y+r.h/2+4}" text-anchor="middle" font-family="Space Mono,monospace" font-size="8" fill="var(--stone)">${r.n}</text>`;
+  });
+
+  // Kapı sembolleri
+  s += `<line x1="${bx+bW/2-10}" y1="${by+bH}" x2="${bx+bW/2+10}" y2="${by+bH}" stroke="var(--cream)" stroke-width="3"/>`;
+  s += `<path d="M${bx+bW/2-10},${by+bH} A20,20 0 0,1 ${bx+bW/2+10},${by+bH}" fill="none" stroke="var(--fog)" stroke-width=".8" stroke-dasharray="2,2"/>`;
+
+  // Pencere sembolleri — her duvarda
+  for (let i = 1; i <= Math.min(p.pencere, 3); i++) {
+    const wx = bx + bW * (i / (Math.min(p.pencere,3)+1));
+    s += `<rect x="${wx-8}" y="${by-3}" width="16" height="6" fill="var(--sky)" stroke="var(--fog)" stroke-width=".8"/>`;
+    s += `<rect x="${wx-8}" y="${by+bH-3}" width="16" height="6" fill="var(--sky)" stroke="var(--fog)" stroke-width=".8"/>`;
+  }
+
+  // Kuzey oku
+  s += `<g transform="translate(${W-28},28)">
+    <line x1="0" y1="14" x2="0" y2="-10" stroke="var(--fog)" stroke-width="1.2"/>
+    <polygon points="0,-14 -4,-6 4,-6" fill="var(--fog)"/>
+    <text x="0" y="24" text-anchor="middle" font-family="Space Mono,monospace" font-size="8" fill="var(--stone)">K</text>
+  </g>`;
+
+  // Başlık
+  s += `<text x="12" y="18" font-family="Space Mono,monospace" font-size="9" fill="var(--mist)">ZEMİN KAT PLANI</text>`;
+  s += `<text x="12" y="30" font-family="Space Mono,monospace" font-size="8" fill="var(--stone)">${p.sofa} · ${p.kat} kat</text>`;
+  s += '</svg>';
+  $('planWrap').innerHTML = s;
+}
+
+/* ─── AKSONOMETRİ ─── */
+function drawAkso(p) {
+  const W = 520, H = 460;
+  const bW = 180, bD = 140, flH = 55;
+  const totalH = p.kat * flH;
+  const cx = W / 2, cy = H / 2 + 40;
+
+  // İzometrik dönüşüm
+  const iso = (x, y, z) => ({
+    x: cx + (x - y) * Math.cos(Math.PI/6),
+    y: cy - z + (x + y) * Math.sin(Math.PI/6) * 0.5
+  });
+
+  const mc = { ahsap:'#c8a882', tas:'#b4a898', karma:'#c8a882' }[p.malzeme];
+  const mcD = { ahsap:'#a08060', tas:'#8a8080', karma:'#a08060' }[p.malzeme];
+  const cW = bW * p.cikma;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%">`;
+  s += `<rect width="${W}" height="${H}" fill="#0d1a0f"/>`;
+
+  // Gölge
+  const sh = (x,y,z) => iso(x,y,z);
+  const corners = [[0,0],[bW,0],[bW,bD],[0,bD]].map(([x,y])=>sh(x,y,0));
+  s += `<polygon points="${corners.map(c=>`${c.x},${c.y+totalH*0.5}`).join(' ')}" fill="rgba(0,0,0,.3)"/>`;
+
+  function face(pts, fill, stroke) {
+    const poly = pts.map(([x,y,z])=>{ const p2=iso(x,y,z); return `${p2.x},${p2.y}`; }).join(' ');
+    s += `<polygon points="${poly}" fill="${fill}" stroke="${stroke||fill}" stroke-width=".8"/>`;
+  }
+  function faceLines(pts, color, n) {
+    for (let i=1;i<n;i++) {
+      const t = i/n;
+      const p1=pts[0], p2=pts[1], p3=pts[2], p4=pts[3];
+      const a=iso(p1[0]+(p4[0]-p1[0])*t, p1[1]+(p4[1]-p1[1])*t, p1[2]+(p4[2]-p1[2])*t);
+      const b=iso(p2[0]+(p3[0]-p2[0])*t, p2[1]+(p3[1]-p2[1])*t, p2[2]+(p3[2]-p2[2])*t);
+      s += `<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${color}" stroke-width=".4" opacity=".4"/>`;
+    }
+  }
+
+  // Zemin
+  face([[0,0,0],[bW,0,0],[bW,bD,0],[0,bD,0]], '#2d4a32', '#1a2e1f');
+
+  // Duvarlar — katlar
+  for (let k=0; k<p.kat; k++) {
+    const z0 = k*flH, z1 = (k+1)*flH;
+    const wallFill = (p.malzeme==='karma' && k===0) ? '#9a9088' : mc;
+    const wallFillD = (p.malzeme==='karma' && k===0) ? '#7a7070' : mcD;
+    face([[0,0,z0],[bW,0,z0],[bW,0,z1],[0,0,z1]], wallFill, '#6b5c50');
+    faceLines([[0,0,z0],[bW,0,z0],[bW,0,z1],[0,0,z1]], '#6b5c50', 6);
+    face([[bW,0,z0],[bW,bD,z0],[bW,bD,z1],[bW,0,z1]], wallFillD, '#6b5c50');
+    faceLines([[bW,0,z0],[bW,bD,z0],[bW,bD,z1],[bW,0,z1]], '#5a4a40', 5);
+    // Kat çizgisi
+    if (k>0) {
+      const pa = iso(0,0,z0), pb = iso(bW,0,z0), pc = iso(bW,bD,z0);
+      s += `<line x1="${pa.x}" y1="${pa.y}" x2="${pb.x}" y2="${pb.y}" stroke="#6b5c50" stroke-width="1.5"/>`;
+      s += `<line x1="${pb.x}" y1="${pb.y}" x2="${pc.x}" y2="${pc.y}" stroke="#5a4a40" stroke-width="1.5"/>`;
+    }
+    // Pencereler ön yüz
+    for (let i=1;i<=Math.min(p.pencere,3);i++) {
+      const wx = bW*(i/(Math.min(p.pencere,3)+1));
+      const pTL = iso(wx-10,0,z0+15), pTR = iso(wx+10,0,z0+15), pBR = iso(wx+10,0,z0+38), pBL = iso(wx-10,0,z0+38);
+      s += `<polygon points="${[pTL,pTR,pBR,pBL].map(p2=>`${p2.x},${p2.y}`).join(' ')}" fill="#b8cfe8" stroke="#6b8f71" stroke-width=".8"/>`;
+    }
+  }
+
+  // Top face (çatı tabanı)
+  face([[0,0,totalH],[bW,0,totalH],[bW,bD,totalH],[0,bD,totalH]], '#1a2e1f', '#4a7c59');
+
+  // Çatı üçgenleri
+  const sacakPx = p.sacak * 30;
+  const catiEgimRad = (p.cati * Math.PI) / 180;
+  const catiH = ((bW + sacakPx*2) / 2) * Math.tan(catiEgimRad) * 0.6;
+  const ridgeH = totalH + catiH;
+
+  // Ön çatı üçgeni
+  face([[0-sacakPx, 0, totalH],[bW+sacakPx, 0, totalH],[bW/2, 0, ridgeH]], '#2d4a32', '#4a7c59');
+  // Yan yüz (çatı)
+  face([[0-sacakPx,0,totalH],[0-sacakPx,bD,totalH],[bW/2,bD/2,ridgeH],[bW/2,0,ridgeH]], '#1a2e1f', '#4a7c59');
+  face([[bW+sacakPx,0,totalH],[bW+sacakPx,bD,totalH],[bW/2,bD/2,ridgeH],[bW/2,0,ridgeH]], '#243826', '#4a7c59');
+  // Ridge
+  const ra = iso(bW/2,0,ridgeH), rb = iso(bW/2,bD/2,ridgeH);
+  s += `<line x1="${ra.x}" y1="${ra.y}" x2="${rb.x}" y2="${rb.y}" stroke="var(--mist)" stroke-width="1.5"/>`;
+
+  // Çıkma aksonometrik
+  if (p.cikma > 0.1) {
+    const cZ = totalH - flH;
+    face([[bW,bD*0.2,cZ],[bW+cW,bD*0.2,cZ],[bW+cW,bD*0.8,cZ],[bW,bD*0.8,cZ]], '#1a2e1f','#4a7c59');
+    face([[bW,bD*0.2,cZ],[bW+cW,bD*0.2,cZ],[bW+cW,bD*0.2,totalH],[bW,bD*0.2,totalH]], mc, '#6b5c50');
+    face([[bW+cW,bD*0.2,cZ],[bW+cW,bD*0.8,cZ],[bW+cW,bD*0.8,totalH],[bW+cW,bD*0.2,totalH]], mcD,'#6b5c50');
+    s += `<text>`;
+    const lbl = iso(bW+cW+5, bD/2, cZ+flH/2);
+    s += `</text>`;
+  }
+
+  s += `<text x="12" y="18" font-family="Space Mono,monospace" font-size="9" fill="var(--mist)">AKSONOMETRİK GÖRÜNÜŞ</text>`;
+  s += `<text x="12" y="30" font-family="Space Mono,monospace" font-size="8" fill="var(--stone)">${p.kat} kat · ${p.malzeme} · eğim ${p.egim}°</text>`;
+  s += '</svg>';
+  $('aksoWrap').innerHTML = s;
+}
+
+/* ─── AI ANALİZİ ─── */
+async function generateAI() {
+  const p = getP();
+  const btn = $('genBtn');
+  btn.disabled = true;
+  btn.textContent = '⟳ Analiz ediliyor…';
+  $('aiDot').className = 'dot thinking';
+  $('aiStatusTxt').textContent = 'Düşünüyor…';
+
+  const prompt = `Sen Doğu Karadeniz geleneksel mimarisi uzmanısın. "Trabzon Kent İçi Kültür Varlıkları Envanteri" (T.C. Trabzon Valiliği, 2021, KTÜ Mimarlık Bölümü) kaynağına ve Karadeniz geleneksel konut mimarisine dayanarak aşağıdaki parametrik konut tasarımını biçim grameri (shape grammar) kuralları açısından analiz et.
+
+TASARIM PARAMETRELERİ:
+- Kat sayısı: ${p.kat}
+- Çatı eğimi: ${p.cati}°
+- Saçak derinliği: ${p.sacak.toFixed(1)} m
+- Çıkma (cumba) oranı: ${p.cikma.toFixed(2)}
+- Pencere açıklık sayısı: ${p.pencere}
+- Arazi eğim açısı: ${p.egim}°
+- Yapım tekniği / malzeme: ${p.malzeme}
+- Sofa/plan düzeni: ${p.sofa}
+
+Şu formatta JSON döndür (başka hiçbir şey yazma):
+{
+  "ozet": "2 cümle tasarım özeti",
+  "kurallar": [
+    {"kural": "kural adı", "aciklama": "bu kuralın iklim/topoğrafya/sosyal yaşamla ilişkisi", "kaynak": "envanterdeki örnek veya referans"},
+    {"kural": "...", "aciklama": "...", "kaynak": "..."},
+    {"kural": "...", "aciklama": "...", "kaynak": "..."},
+    {"kural": "...", "aciklama": "...", "kaynak": "..."}
+  ],
+  "iklimselUyum": "bu tasarımın Karadeniz iklimine uyum açısından değerlendirmesi",
+  "envanter": "Trabzon Kültür Varlıkları Envanteri'nden bu tasarımla örtüşen somut örnek yapı ve özelliği",
+  "öneri": "çağdaş hesaplamalı tasarıma aktarım için bir öneri"
+}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    let parsed;
+    try { parsed = JSON.parse(raw); } catch { parsed = null; }
+    renderAI(parsed, raw);
+  } catch(e) {
+    $('rightBody').innerHTML = `<div class="ai-block"><div class="ai-block-title">Hata</div><div class="ai-block-text" style="color:#f09595">API bağlantı hatası: ${e.message}</div></div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ AI Analizi Üret';
+  $('aiDot').className = 'dot done';
+  $('aiStatusTxt').textContent = 'Tamamlandı';
+}
+
+function renderAI(data, raw) {
+  if (!data) {
+    $('rightBody').innerHTML = `<div class="ai-block"><div class="ai-block-title">Ham Çıktı</div><div class="ai-block-text">${raw}</div></div>`;
+    return;
+  }
+  let h = '';
+  if (data.ozet) {
+    h += `<div class="ai-block"><div class="ai-block-title">Tasarım Özeti</div><div class="ai-block-text">${data.ozet}</div></div>`;
+  }
+  if (data.kurallar?.length) {
+    h += `<div class="ai-block"><div class="ai-block-title">Biçim Grameri Kuralları</div>`;
+    data.kurallar.forEach(k => {
+      h += `<div class="ai-rule"><strong>${k.kural}</strong><br><span style="font-size:12px;opacity:.85">${k.aciklama}</span>${k.kaynak ? `<br><span style="font-size:10px;color:var(--stone);margin-top:3px;display:block">📖 ${k.kaynak}</span>` : ''}</div>`;
+    });
+    h += `</div>`;
+  }
+  if (data.iklimselUyum) {
+    h += `<div class="ai-block"><div class="ai-block-title">İklimsel Uyum</div><div class="ai-block-text">${data.iklimselUyum}</div></div>`;
+  }
+  if (data.envanter) {
+    h += `<div class="ai-block"><div class="ai-block-title">Envanter Referansı</div><div class="ai-block-text" style="border-left:2px solid var(--sage);padding-left:.75rem">${data.envanter}</div></div>`;
+  }
+  if (data.öneri) {
+    h += `<div class="ai-block"><div class="ai-block-title">Çağdaş Tasarıma Aktarım</div><div class="ai-block-text">${data.öneri}</div></div>`;
+  }
+  $('rightBody').innerHTML = h;
+}
+
+/* INIT */
+update();
+</script>
+</body>
+</html>
